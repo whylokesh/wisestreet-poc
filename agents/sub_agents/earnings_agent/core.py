@@ -1,13 +1,13 @@
 import json
 from openai import OpenAI
-from agents.tools.earnings.alpha import get_earnings_alpha
+from .tools.alpha import get_earnings_alpha
 
 SYSTEM_PROMPT = """
 You are the EarningsAgent of WiseStreet.
 You specialize in extracting company earnings data like revenue, EPS, and YoY trends.
 """
 
-def get_earnings(prompt: str, client: OpenAI) -> str:
+def run_earnings_agent(prompt: str, client: OpenAI, model: str) -> str:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Get earnings for: {prompt}"}
@@ -31,7 +31,7 @@ def get_earnings(prompt: str, client: OpenAI) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model,
         messages=messages,
         tools=tools,
         tool_choice="auto"
@@ -53,7 +53,7 @@ def get_earnings(prompt: str, client: OpenAI) -> str:
         })
 
         final = client.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=messages
         )
         return final.choices[0].message.content

@@ -1,14 +1,14 @@
 import json
 from openai import OpenAI
-from agents.tools.valuation.alpha import get_valuation_alpha
-from agents.tools.valuation.fmp import get_valuation_fmp
+from .tools.alpha import get_valuation_alpha
+from .tools.fmp import get_valuation_fmp
 
 SYSTEM_PROMPT = """
 You are the ValuationAgent of WiseStreet.
 You estimate fair value of stocks using valuation models, P/E ratios, and peer comparisons.
 """
 
-def get_valuation(prompt: str, client: OpenAI) -> str:
+def run_valuation_agent(prompt: str, client: OpenAI, model: str) -> str:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Estimate valuation for: {prompt}"}
@@ -46,7 +46,7 @@ def get_valuation(prompt: str, client: OpenAI) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model,
         messages=messages,
         tools=tools,
         tool_choice="auto"
@@ -73,7 +73,7 @@ def get_valuation(prompt: str, client: OpenAI) -> str:
             })
 
         final = client.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=messages
         )
         return final.choices[0].message.content

@@ -1,14 +1,14 @@
 import json
 from openai import OpenAI
-from agents.tools.macro.tradingeconomics import get_macro_te
-from agents.tools.macro.worldbank import get_macro_wb
+from .tools.tradingeconomics import get_macro_te
+from .tools.worldbank import get_macro_wb
 
 SYSTEM_PROMPT = """
 You are the MacroAgent of WiseStreet.
 You gather macroeconomic indicators such as inflation, GDP, interest rates, and global events.
 """
 
-def get_macro(prompt: str, client: OpenAI) -> str:
+def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Analyze macroeconomic context for: {prompt}"}
@@ -46,7 +46,7 @@ def get_macro(prompt: str, client: OpenAI) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model,
         messages=messages,
         tools=tools,
         tool_choice="auto"
@@ -73,7 +73,7 @@ def get_macro(prompt: str, client: OpenAI) -> str:
             })
 
         final = client.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=messages
         )
         return final.choices[0].message.content

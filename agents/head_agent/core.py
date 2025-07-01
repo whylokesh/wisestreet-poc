@@ -2,18 +2,18 @@ import json
 from openai import OpenAI
 
 # Import all sub-agents
-from agents.news_agent import get_news
-from agents.sentiment_agent import get_sentiment
-from agents.earnings_agent import get_earnings
-from agents.macro_agent import get_macro
-from agents.valuation_agent import get_valuation
+from agents.sub_agents.news_agent import run_news_agent
+from agents.sub_agents.sentiment_agent import run_sentiment_agent
+from agents.sub_agents.earnings_agent import run_earnings_agent
+from agents.sub_agents.macro_agent import run_macro_agent
+from agents.sub_agents.valuation_agent import run_valuation_agent
 
 # Define each sub-agent tool schema
 tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_news",
+            "name": "run_news_agent",
             "description": "Summarizes recent financial, company, or macro news from multiple sources.",
             "parameters": {
                 "type": "object",
@@ -30,7 +30,7 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_sentiment",
+            "name": "run_sentiment_agent",
             "description": "Analyzes public sentiment from social media or forums about any financial or economic topic.",
             "parameters": {
                 "type": "object",
@@ -47,7 +47,7 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_earnings",
+            "name": "run_earnings_agent",
             "description": "Summarizes the latest earnings report of a company, including revenue, EPS, and key metrics.",
             "parameters": {
                 "type": "object",
@@ -64,7 +64,7 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_macro",
+            "name": "run_macro_agent",
             "description": "Provides macroeconomic insights, like inflation, GDP, interest rate trends or country-level events.",
             "parameters": {
                 "type": "object",
@@ -81,7 +81,7 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_valuation",
+            "name": "run_valuation_agent",
             "description": "Estimates company valuation using P/E, DCF models, and peer comparisons.",
             "parameters": {
                 "type": "object",
@@ -102,18 +102,18 @@ SYSTEM_PROMPT = """
 You are WiseStreet, an intelligent financial research head agent.
 
 Your job is to:
-- Understand the user’s financial question
+- Understand the user's financial question
 - Break it into subtasks
 - Call your expert sub-agents (news, sentiment, earnings, macro, valuation)
 - Combine their responses into a final, smart recommendation
 
-Each tool is a highly intelligent assistant — you don’t fetch raw data, they do. You guide the workflow.
+Each tool is a highly intelligent assistant — you don't fetch raw data, they do. You guide the workflow.
 
-Use a loop of thinking → calling → observing → thinking again. Only stop when you are confident you’ve gathered enough to answer the user clearly.
+Use a loop of thinking → calling → observing → thinking again. Only stop when you are confident you've gathered enough to answer the user clearly.
 """
 
 # Core loop of the Head Agent
-def head_agent(user_query: str, client: OpenAI) -> str:
+def run_head_agent(user_query: str, client: OpenAI, model: str) -> str:
     chat_history = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_query}
@@ -121,7 +121,7 @@ def head_agent(user_query: str, client: OpenAI) -> str:
 
     while True:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model=model,
             messages=chat_history,
             tools=tools,
             tool_choice="auto"
@@ -129,25 +129,27 @@ def head_agent(user_query: str, client: OpenAI) -> str:
 
         message = response.choices[0].message
 
+        # 🔧 Handle tool calls
         if message.tool_calls:
             for tool_call in message.tool_calls:
                 tool_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
 
-                # Dynamically map tool name to agent function
-                if tool_name == "get_news":
-                    tool_result = get_news(args["prompt"])
-                elif tool_name == "get_sentiment":
-                    tool_result = get_sentiment(args["prompt"])
-                elif tool_name == "get_earnings":
-                    tool_result = get_earnings(args["prompt"])
-                elif tool_name == "get_macro":
-                    tool_result = get_macro(args["prompt"])
-                elif tool_name == "get_valuation":
-                    tool_result = get_valuation(args["prompt"])
+                # Run the matching sub-agent
+                if tool_name == "run_news_agent":
+                    tool_result = run_news_agent(args["prompt"], client, model)
+                elif tool_name == "run_sentiment_agent":
+                    tool_result = run_sentiment_agent(args["prompt"], client, model)
+                elif tool_name == "run_earnings_agent":
+                    tool_result = run_earnings_agent(args["prompt"], client, model)
+                elif tool_name == "run_macro_agent":
+                    tool_result = run_macro_agent(args["prompt"], client, model)
+                elif tool_name == "run_valuation_agent":
+                    tool_result = run_valuation_agent(args["prompt"], client, model)
                 else:
                     tool_result = f"[Tool '{tool_name}' is not implemented yet]"
 
+                # Add observation back to history
                 chat_history.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -155,6 +157,9 @@ def head_agent(user_query: str, client: OpenAI) -> str:
                     "content": tool_result
                 })
 
-        else:
+            # Continue loop → GPT will "observe" tool responses
+
+        # 💬 No tool call — final answer
+        elif message.content:
             chat_history.append({"role": "assistant", "content": message.content})
             return message.content
