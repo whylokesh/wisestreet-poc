@@ -1,13 +1,14 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-# from agents.head_agent import run_head_agent
+
+from agents.head_agent import run_head_agent  # ✅ Now active
 
 load_dotenv() 
 
 def test_openai_api(user_query: str, client: OpenAI, model: str) -> str:
     """
-    You ar a helpful AI assistant. Answert the user query is polite and respectful way.
+    You are a helpful AI assistant. Answer the user query in a polite and respectful way.
     """
     try:
         response = client.chat.completions.create(
@@ -27,7 +28,7 @@ def main():
         print("❌ Please set the OPENAI_API_KEY environment variable.")
         return
 
-    model = os.getenv("OPENAI_MODEL", "gpt-4-1106-preview")  # Default to gpt-4o if not set
+    model = os.getenv("OPENAI_MODEL")  # Default to gpt-4o if not set
     client = OpenAI(api_key=api_key)
 
     while True:
@@ -38,9 +39,11 @@ def main():
                 break
 
             print("\n💡 Thinking...\n")
-            # Replace this line with run_head_agent once your credits are live
-            # answer = run_head_agent(user_query, client, model)
-            answer = test_openai_api(user_query, client, model)
+            # 🔁 Core workflow - uses macro agent for now
+            answer = run_head_agent(user_query, client, model)
+            # For test purposes only:
+            # answer = test_openai_api(user_query, client, model)
+
             print(f"\n✅ Answer:\n{answer}\n")
 
         except KeyboardInterrupt:
