@@ -1,0 +1,160 @@
+$ python main.py
+🧠 Welcome to WiseStreet - Your AI Investment Research Assistant
+
+🧾 Ask a financial question (or type 'exit' to quit):
+> Hey hows the economy in india right now
+
+💡 Thinking...
+
+🧠 [HeadAgent] Invoked with user query: Hey hows the economy in india right now
+💬 [HeadAgent] Sending prompt to OpenAI...
+🛠️ [HeadAgent] Tool call(s) received.
+🔧 [HeadAgent] Executing tool: run_macro_agent
+📥 [HeadAgent] With args: {'prompt': 'current economic conditions in India, including trends in GDP, inflation, interest rates, and any significant events affecting the economy'}
+🧠 [MacroAgent] Invoked with prompt: current economic conditions in India, including trends in GDP, inflation, interest rates, and any significant events affecting the economy
+💬 [MacroAgent] Sending prompt to OpenAI...
+🛠️ [MacroAgent] Tool call(s) received.
+🔧 [MacroAgent] Calling tool: get_macro_indicators with country=India
+📤 [MacroAgent] Result: • **Currency** — 85.5 (Prev: 85.41, High: 88.1, Low: 0.01, Unit: , Date: Jul/25)
+• **Stock Market** — 83433 (Prev: 83239, High: 85978, Low: 113, Unit: points, Date: Jul/25)
+• **GDP Growth Rate** — 2 (...
+🔧 [MacroAgent] Calling tool: get_economic_calendar with country=India
+📤 [MacroAgent] Result: • **HSBC Composite PMI Final** at 05:00 AM (IN)
+  - Actual: 61.0, Forecast: 61.0, Consensus: N/A, Previous: 59.3
+
+• **HSBC Services PMI Final** at 05:00 AM (IN)
+  - Actual: 60.4, Forecast: 60.7, Conse...
+🔧 [MacroAgent] Calling tool: get_financial_news with country=India
+📤 [MacroAgent] Result: 📰 **Sensex Ends Slightly Higher, Still Posts Weekly Loss**
+🕒 04 Jul 2025 11:10 AM
+📝 India's BSE Sensex managed to close about 0.2% up at 83,432.9 on Friday, halting a two-day losing streak, in a chopp...
+📚 [MacroAgent] Tool responses appended to history.
+💬 [MacroAgent] Sending prompt to OpenAI...
+✅ [MacroAgent] Final answer ready.
+📤 [HeadAgent] Tool result: ### Current Economic Conditions in India (as of July 2025)
+
+#### Macroeconomic Indicators:
+1. **GDP Growth Rate**:
+   - **Current**: 2%
+   - **Annual Growth Rate**: 7.4% (Previous: 6.4%)
+   - GDP has ...
+📚 [HeadAgent] Tool responses added to chat history.
+💬 [HeadAgent] Sending prompt to OpenAI...
+✅ [HeadAgent] Final answer from assistant:
+Currently, India's economy shows a mixed picture with several strengths and ongoing challenges:
+
+### Economic Indicators:
+1. **GDP Growth**: 
+   - The GDP growth rate stands at **2%** for the current quarter, but there's an annual growth rate of **7.4%**, indicating a robust rebound compared to last...
+
+✅ Answer:
+Currently, India's economy shows a mixed picture with several strengths and ongoing challenges:
+
+### Economic Indicators:
+1. **GDP Growth**:
+   - The GDP growth rate stands at **2%** for the current quarter, but there's an annual growth rate of **7.4%**, indicating a robust rebound compared to last year.
+
+2. **Inflation**:
+   - The inflation rate is at **2.82%**, significantly lower than the Reserve Bank of India (RBI) target of **4%**. This marks the lowest inflation level seen in over six years.
+
+3. **Interest Rates**:
+   - The RBI reduced the benchmark interest rate to **5.5%** (down from **6%**), which is expected to stimulate economic growth.     
+
+4. **Unemployment Rate**:
+   - There's a slight improvement in the unemployment rate, now at **7.9%**, down from **8.2%**.
+
+5. **Trade Balance**:
+   - The balance of trade has improved, with a current deficit of **21.88 billion USD**, down from **26.42 billion USD**.
+
+6. **Current Account**:
+   - India is experiencing a current account surplus of **13,500 million USD**, reflecting a healthier trade balance compared to previous years.
+
+7. **Government Budget Deficit**:
+   - The fiscal deficit has narrowed to **4.8% of GDP**, indicating improved government revenues.
+
+8. **Market Performance**:
+   - The BSE Sensex is currently at **83,433 points**, experiencing slight fluctuations but indicative of overall investor confidence amid positive economic signals.
+
+### Business Sentiment:
+- Business confidence remains steady, supported by strong performance indicators in the services and manufacturing sectors.
+
+### Upcoming Economic Events:
+- Key indicators such as **PMI reports**, bank loan growth, and updates on wholesale price inflation (WPI) will be crucial for future economic assessments.
+
+### Recent Financial News:
+- The market reflects cautious optimism influenced by ongoing trade negotiations with the US and sector performance, particularly in technology and banking.
+- Some companies faced earnings disappointments, adding to the mixed sentiment among investors.
+
+### Conclusion:
+India's economic landscape is currently strong with significant growth potential, characterized by low inflation and supportive monetary policy. However, upcoming trade negotiations and sector performance will play critical roles in shaping future economic conditions.
+
+🧾 Ask a financial question (or type 'exit' to quit):
+> is there any news about future growth near future of india 
+
+💡 Thinking...
+
+🧠 [HeadAgent] Invoked with user query: is there any news about future growth near future of india
+💬 [HeadAgent] Sending prompt to OpenAI...
+🛠️ [HeadAgent] Tool call(s) received.
+🔧 [HeadAgent] Executing tool: run_news_agent
+📥 [HeadAgent] With args: {'prompt': "future economic growth prospects in India, including any recent policies, reforms, or economic indicators affecting the country's growth."}
+🧠 [NewsAgent] Invoked with prompt: future economic growth prospects in India, including any recent policies, reforms, or economic indicators affecting the country's growth.
+💬 [NewsAgent] Sending prompt to OpenAI...
+🛠️ [NewsAgent] Tool call(s) received.
+🔧 [NewsAgent] Executing tool: search_news
+📥 [NewsAgent] With args: {'query': 'future economic growth prospects in India', 'country': 'in'}
+📤 [NewsAgent] Result: 📰 **Icici Prudential Mutual Fund Launches Icici Prudential Quality Fund**
+🕒 2025-07-05 14:48:50
+🔗 https://www.businessworld.in/article/icici-prudential-mutual-fund-launches-icici-prudential-quality-fu...
+📚 [NewsAgent] Tool response(s) appended to history.
+💬 [NewsAgent] Sending prompt to OpenAI...
+🛠️ [NewsAgent] Tool call(s) received.
+🔧 [NewsAgent] Executing tool: search_news
+📥 [NewsAgent] With args: {'query': 'India economic growth policies reforms indicators', 'country': 'in'}
+📤 [NewsAgent] Result: 📰 **Renewables Surge Though Geopolitical Shifts Threaten Progress**
+🕒 2025-07-05 21:00:00
+🔗 https://oilprice.com/Energy/Energy-General/Renewables-Surge-Though-Geopolitical-Shifts-Threaten-Progress.htm...
+📚 [NewsAgent] Tool response(s) appended to history.
+💬 [NewsAgent] Sending prompt to OpenAI...
+🛠️ [NewsAgent] Tool call(s) received.
+🔧 [NewsAgent] Executing tool: extract_news_content
+📥 [NewsAgent] With args: {'url': 'https://www.businessworld.in/article/icici-prudential-mutual-fund-launches-icici-prudential-quality-fund-555853'}
+📤 [NewsAgent] Result: ICICI Prudential Mutual Fund has announced the launch of the ICICI Prudential Quality Fund, an open-ended equity scheme following the Quality Factor as theme. This New Fund Offer (NFO) opens on May 6,...
+🔧 [NewsAgent] Executing tool: extract_news_content
+📥 [NewsAgent] With args: {'url': 'https://news.abplive.com/business/world-bank-report-india-among-top-nations-in-income-equality-1785555'}
+📤 [NewsAgent] Result: India Among Top Nations In Income Equality: World Bank Report
+A suite of welfare schemes has contributed to this transformation. Over 55 crore Jan Dhan bank accounts have been opened, expanding access...
+🔧 [NewsAgent] Executing tool: extract_news_content
+📥 [NewsAgent] With args: {'url': 'https://www.businessworld.in/article/experts-call-for-skilling-and-state-led-reforms-to-drive-indias-growth-555700'}
+📤 [NewsAgent] Result: India’s economy is in good shape despite a challenging global environment, according to Chief Economic Advisor V. Anantha Nageswaran. Speaking at a conference hosted by the Isaac Centre for Public Pol...
+📚 [NewsAgent] Tool response(s) appended to history.
+💬 [NewsAgent] Sending prompt to OpenAI...
+✅ [NewsAgent] Final answer ready.
+📤 [HeadAgent] Tool result: Here's the latest news and insights about the future economic growth prospects in India, including recent policies, reforms, and economic indicators:
+
+1. **ICICI Prudential Quality Fund Launch**:
+   -...
+📚 [HeadAgent] Tool responses added to chat history.
+💬 [HeadAgent] Sending prompt to OpenAI...
+✅ [HeadAgent] Final answer from assistant:
+I gathered the latest news and insights regarding India's future economic growth prospects. Here's a summary of the key developments:
+
+1. **ICICI Prudential Quality Fund Launch**:
+   - The ICICI Prudential Mutual Fund has introduced a new fund focusing on investing in companies with strong fundament...
+
+✅ Answer:
+I gathered the latest news and insights regarding India's future economic growth prospects. Here's a summary of the key developments:
+
+1. **ICICI Prudential Quality Fund Launch**:
+   - The ICICI Prudential Mutual Fund has introduced a new fund focusing on investing in companies with strong fundamentals, such as high return on equity and robust cash flows. This move highlights the emphasis on quality investments amidst economic uncertainties, indicating a strategic approach towards stabilizing growth.
+
+2. **World Bank Report on Income Equality**:
+   - A recent report from the World Bank shows that India ranks among the leading nations in income equality, with a Gini Index score of 25.5. This improvement reflects the effectiveness of various government welfare schemes and policy reforms aimed at reducing poverty. The focus on inclusive development is crucial for sustaining long-term growth.
+
+3. **Economic Growth Forecast**:
+   - India's Chief Economic Advisor has conveyed optimism about innovation-led and inclusive growth despite global challenges. However, S&P Global Ratings has slightly downgraded India's growth forecast for the current financial year to 6.3%, pointing to market uncertainties. Key areas of focus include energy affordability, employment, education, and manufacturing, emphasizing the necessity for continued structural reforms.
+
+### Conclusion
+India is actively pursuing avenues for future growth through quality investments and inclusive policies. However, external factors and market uncertainties may pose challenges, necessitating ongoing reforms to ensure sustainable economic expansion.
+
+🧾 Ask a financial question (or type 'exit' to quit):

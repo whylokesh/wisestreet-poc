@@ -1,84 +1,107 @@
 import json
 from openai import OpenAI
-from .tools.alpha import get_news_alpha
-from .tools.catcher import get_news_catcher
+from .tools.news_tools import search_news, extract_news_content
 
 SYSTEM_PROMPT = """
 You are the NewsAgent of WiseStreet.
-You specialize in fetching and summarizing relevant financial or macroeconomic news using multiple sub-agent tools.
 
-Your job is to think step-by-step, choose which news sub-agent to use, observe results, and return a clean summary.
+Your job is to:
+- Investigate financial, economic, or company-specific news
+- Search for the latest updates on any topic (using a web news API)
+- If needed, dig deeper by reading the full content of specific articles
+
+Use these two tools:
+1. `search_news` — finds recent news headlines on a topic
+2. `extract_news_content` — reads a full article from a given link
 """
 
-def run_news_agent(prompt: str, client: OpenAI, model: str) -> str:
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Fetch news for: {prompt}"}
-    ]
-
-    tools = [
+TOOLS = [
         {
             "type": "function",
             "function": {
-                "name": "alpha_news_agent",
-                "description": "Sub-agent that fetches financial news from Alpha Vantage based on topic.",
+                "name": "search_news",
+                "description": "Searches recent news articles about a topic using NewsData.io.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "prompt": {"type": "string", "description": "Topic or query for news"}
+                        "query": {"type": "string", "description": "Topic to search (e.g., 'Adani bonds')"},
+                        "country": {"type": "string", "description": "Country code (e.g., 'in')"}
                     },
-                    "required": ["prompt"]
+                    "required": ["query"]
                 }
             }
         },
         {
             "type": "function",
             "function": {
-                "name": "catcher_news_agent",
-                "description": "Sub-agent that fetches financial news using NewsCatcher API.",
+                "name": "extract_news_content",
+                "description": "Extracts the full text from a news article URL.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "prompt": {"type": "string", "description": "Topic or query for news"}
+                        "url": {"type": "string", "description": "URL of the article to analyze"}
                     },
-                    "required": ["prompt"]
+                    "required": ["url"]
                 }
             }
         }
     ]
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        tools=tools,
-        tool_choice="auto"
-    )
+def run_news_agent(prompt: str, client: OpenAI, model: str) -> str:
+    print(f"🧠 [NewsAgent] Invoked with prompt: {prompt}")
 
-    message = response.choices[0].message
+    chat_history = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Find news and insights about: {prompt}"}
+    ]
 
-    if message.tool_calls:
-        for tool_call in message.tool_calls:
-            tool_name = tool_call.function.name
-            args = json.loads(tool_call.function.arguments)
+    while True:
+        print("💬 [NewsAgent] Sending prompt to OpenAI...")
 
-            if tool_name == "alpha_news_agent":
-                tool_result = get_news_alpha(args["prompt"])
-            elif tool_name == "catcher_news_agent":
-                tool_result = get_news_catcher(args["prompt"])
-            else:
-                tool_result = "[Unknown sub-agent]"
-
-            messages.append({
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "name": tool_name,
-                "content": tool_result
-            })
-
-        final = client.chat.completions.create(
+        response = client.chat.completions.create(
             model=model,
-            messages=messages
+            messages=chat_history,
+            tools=TOOLS,
+            tool_choice="auto"
         )
-        return final.choices[0].message.content
 
-    return message.content or "No news found."
+        message = response.choices[0].message
+
+        tool_responses = []
+
+        if message.tool_calls:
+            print("🛠️ [NewsAgent] Tool call(s) received.")
+
+            chat_history.append(message)
+
+            for tool_call in message.tool_calls:
+                tool_name = tool_call.function.name
+                args = json.loads(tool_call.function.arguments)
+
+                print(f"🔧 [NewsAgent] Executing tool: {tool_name}")
+                print(f"📥 [NewsAgent] With args: {args}")
+
+                # Execute the tool
+                if tool_name == "search_news":
+                    result = search_news(args["query"], args.get("country", "in"))
+                elif tool_name == "extract_news_content":
+                    result = extract_news_content(args["url"])
+                else:
+                    result = f"[Unknown tool: {tool_name}]"
+
+                print(f"📤 [NewsAgent] Result: {result[:200]}{'...' if len(result) > 200 else ''}")
+
+                tool_responses.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": tool_name,
+                    "content": result
+                })
+
+            chat_history.extend(tool_responses)
+            print("📚 [NewsAgent] Tool response(s) appended to history.")
+
+        elif message.content:
+            print("✅ [NewsAgent] Final answer ready.")
+            chat_history.append({"role": "assistant", "content": message.content})
+            return message.content

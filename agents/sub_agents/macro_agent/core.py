@@ -21,9 +21,7 @@ You have 3 tools at your disposal:
 3. Financial News (latest country-level news via API)
 """
 
-def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
-
-    tools = [
+TOOLS = [
         {
             "type": "function",
             "function": {
@@ -68,28 +66,31 @@ def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
         }
     ]
 
+def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
+    print(f"🧠 [MacroAgent] Invoked with prompt: {prompt}")
+
     chat_history = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Analyze macroeconomic context for: {prompt}"}
     ]
 
     while True:
+        print("💬 [MacroAgent] Sending prompt to OpenAI...")
+
         response = client.chat.completions.create(
             model=model,
             messages=chat_history,
-            tools=tools,
+            tools=TOOLS,
             tool_choice="auto"
         )
 
         message = response.choices[0].message
 
+        # 🛠️ Handle tool calls
         if message.tool_calls:
-            print("🛠️ Tool calls received.")
-
-            # Append the assistant's tool_call message first
+            print("🛠️ [MacroAgent] Tool call(s) received.")
             chat_history.append(message)
 
-            # Collect tool results
             tool_responses = []
 
             for tool_call in message.tool_calls:
@@ -97,8 +98,9 @@ def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
                 args = json.loads(tool_call.function.arguments)
                 country = args.get("country", "India")
 
-                print(f"🔧 Calling tool: {tool_name} with country={country}")
+                print(f"🔧 [MacroAgent] Calling tool: {tool_name} with country={country}")
 
+                # 🧠 Execute the tool
                 if tool_name == "get_macro_indicators":
                     result = get_macro_indicators(country)
                 elif tool_name == "get_economic_calendar":
@@ -108,6 +110,8 @@ def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
                 else:
                     result = "[Unknown tool]"
 
+                print(f"📤 [MacroAgent] Result: {result[:200]}{'...' if len(result) > 200 else ''}")
+
                 tool_responses.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -115,9 +119,11 @@ def run_macro_agent(prompt: str, client: OpenAI, model: str) -> str:
                     "content": result
                 })
 
-            # Append all tool responses together (AFTER the assistant tool_call message)
             chat_history.extend(tool_responses)
+            print("📚 [MacroAgent] Tool responses appended to history.")
 
+        # ✅ Final message from assistant
         elif message.content:
+            print("✅ [MacroAgent] Final answer ready.")
             chat_history.append({"role": "assistant", "content": message.content})
             return message.content

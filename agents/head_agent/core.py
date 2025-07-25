@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 
 # Import only the macro agent
-# from agents.sub_agents.news_agent import run_news_agent
+from agents.sub_agents.news_agent import run_news_agent
 # from agents.sub_agents.sentiment_agent import run_sentiment_agent
 # from agents.sub_agents.earnings_agent import run_earnings_agent
 from agents.sub_agents.macro_agent import run_macro_agent
@@ -10,23 +10,23 @@ from agents.sub_agents.macro_agent import run_macro_agent
 
 # Define tools (only macro agent)
 tools = [
-    # {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "run_news_agent",
-    #         "description": "Summarizes recent financial, company, or macro news from multiple sources.",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "prompt": {
-    #                     "type": "string",
-    #                     "description": "A detailed instruction of the news topic to investigate (e.g., company, sector, region, theme)."
-    #                 }
-    #             },
-    #             "required": ["prompt"]
-    #         }
-    #     }
-    # },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_news_agent",
+            "description": "Summarizes recent financial, company, or macro news from multiple sources.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "A detailed instruction of the news topic to investigate (e.g., company, sector, region, theme)."
+                    }
+                },
+                "required": ["prompt"]
+            }
+        }
+    },
     # {
     #     "type": "function",
     #     "function": {
@@ -114,12 +114,16 @@ Use a loop of thinking → calling → observing → thinking again. Only stop w
 
 # Core loop of the Head Agent
 def run_head_agent(user_query: str, client: OpenAI, model: str) -> str:
+    print(f"🧠 [HeadAgent] Invoked with user query: {user_query}")
+
     chat_history = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_query}
     ]
 
     while True:
+        print("💬 [HeadAgent] Sending prompt to OpenAI...")
+
         response = client.chat.completions.create(
             model=model,
             messages=chat_history,
@@ -129,19 +133,27 @@ def run_head_agent(user_query: str, client: OpenAI, model: str) -> str:
 
         message = response.choices[0].message
 
-       # 🔧 Handle tool calls
         if message.tool_calls:
-            chat_history.append(message)  # 🟢 Append assistant message with tool_calls FIRST
+            print("🛠️ [HeadAgent] Tool call(s) received.")
+            chat_history.append(message)
 
             tool_messages = []
+
             for tool_call in message.tool_calls:
                 tool_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
 
+                print(f"🔧 [HeadAgent] Executing tool: {tool_name}")
+                print(f"📥 [HeadAgent] With args: {args}")
+
                 if tool_name == "run_macro_agent":
                     tool_result = run_macro_agent(args["prompt"], client, model)
+                elif tool_name == "run_news_agent":
+                    tool_result = run_news_agent(args["prompt"], client, model)
                 else:
-                    tool_result = f"[Tool '{tool_name}' is not implemented yet]"
+                    tool_result = f"[❌ Unknown or unimplemented tool: {tool_name}]"
+
+                print(f"📤 [HeadAgent] Tool result: {tool_result[:200]}{'...' if len(tool_result) > 200 else ''}")
 
                 tool_messages.append({
                     "role": "tool",
@@ -150,9 +162,11 @@ def run_head_agent(user_query: str, client: OpenAI, model: str) -> str:
                     "content": tool_result
                 })
 
-            chat_history.extend(tool_messages)  # 🟢 Append all tool messages AFTER assistant message
+            chat_history.extend(tool_messages)
+            print("📚 [HeadAgent] Tool responses added to chat history.")
 
-        # 💬 No tool call — final answer
         elif message.content:
+            print("✅ [HeadAgent] Final answer from assistant:")
+            print(message.content[:300] + ("..." if len(message.content) > 300 else ""))
             chat_history.append({"role": "assistant", "content": message.content})
             return message.content
