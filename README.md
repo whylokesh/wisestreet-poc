@@ -1,4 +1,4 @@
-# WiseStreet MDT
+# WiseStreet POC
 
 **AI-powered, agentic financial research assistant for the terminal.**
 
