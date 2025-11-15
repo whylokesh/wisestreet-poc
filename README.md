@@ -4,7 +4,7 @@
 
 ## Overview
 
-WiseStreet MDT is a prototype that simulates a real financial research desk using OpenAI's function-calling and a manager/sub-agent architecture. The system is designed to:
+WiseStreet POC is a prototype that simulates a real financial research desk using OpenAI's function-calling and a manager/sub-agent architecture. The system is designed to:
 
 - Interpret complex user queries about markets, companies, or macro trends.
 - Break queries into subtasks and delegate to expert sub-agents.
